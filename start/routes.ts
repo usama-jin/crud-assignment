@@ -9,3 +9,4 @@ router.get('/',() =>{
 // User Register
 router.post('/users', [UsersController, 'store'])
 router.put('/users/:id', [UsersController, 'update'])
+router.patch('/users/:id', [UsersController, 'patch'])

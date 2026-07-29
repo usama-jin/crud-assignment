@@ -31,4 +31,16 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'users.patch': {
+    methods: ["PATCH"]
+    pattern: '/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
 }
