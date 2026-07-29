@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import { updateUserValidator } from '#validators/update_user'
 
 export default class UsersController {
 
@@ -34,16 +35,7 @@ export default class UsersController {
       })
     }
 
-    const data = request.only([
-      'firstName',
-      'lastName',
-      'email',
-      'phone',
-      'address',
-      'city',
-      'province',
-      'country',
-    ])
+const data = await request.validateUsing(updateUserValidator)
 
     user.merge(data)
 
@@ -54,4 +46,5 @@ export default class UsersController {
       data: user,
     })
   }
+   
 }
