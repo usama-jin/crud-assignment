@@ -30,6 +30,12 @@ const routes = {
     tokens: [{"old":"/users/:id","type":0,"val":"users","end":""},{"old":"/users/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['users.destroy']['types'],
   },
+  'users.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/users',
+    tokens: [{"old":"/users","type":0,"val":"users","end":""}],
+    types: placeholder as Registry['users.index']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

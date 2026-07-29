@@ -55,4 +55,16 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'users.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/users'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
 }

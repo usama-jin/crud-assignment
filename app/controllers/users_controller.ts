@@ -91,4 +91,30 @@ const data = await request.validateUsing(updateUserValidator)
       message: 'User deleted successfully',
     })
   }
+
+  async index({ request }: HttpContext) {
+    const page = Number(request.input('page', 1))
+    const limit = Number(request.input('limit', 10))
+
+    const search = request.input('search', '')
+    const sortBy = request.input('sortBy', 'id')
+    const order = request.input('order', 'asc')
+
+    const users = await User.query()
+      .if(search, (query) => {
+        query.where((builder) => {
+          builder
+            .whereILike('first_name', `%${search}%`)
+            .orWhereILike('last_name', `%${search}%`)
+            .orWhereILike('email', `%${search}%`)
+            .orWhereILike('city', `%${search}%`)
+            .orWhereILike('province', `%${search}%`)
+            .orWhereILike('country', `%${search}%`)
+        })
+      })
+      .orderBy(sortBy, order)
+      .paginate(page, limit)
+
+    return users
+  }
 }

@@ -7,5 +7,6 @@ export interface ApiDefinition {
     update: typeof routes['users.update']
     patch: typeof routes['users.patch']
     destroy: typeof routes['users.destroy']
+    index: typeof routes['users.index']
   }
 }

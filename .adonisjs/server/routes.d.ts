@@ -8,10 +8,13 @@ export type ScannedRoutes = {
     'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.patch': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'users.index': { paramsTuple?: []; params?: {} }
   }
   GET: {
+    'users.index': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
+    'users.index': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'users.store': { paramsTuple?: []; params?: {} }
