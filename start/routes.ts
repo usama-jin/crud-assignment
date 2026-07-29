@@ -10,3 +10,4 @@ router.get('/',() =>{
 router.post('/users', [UsersController, 'store'])
 router.put('/users/:id', [UsersController, 'update'])
 router.patch('/users/:id', [UsersController, 'patch'])
+router.delete('/users/:id', [UsersController, 'destroy'])

@@ -6,5 +6,6 @@ export interface ApiDefinition {
     store: typeof routes['users.store']
     update: typeof routes['users.update']
     patch: typeof routes['users.patch']
+    destroy: typeof routes['users.destroy']
   }
 }

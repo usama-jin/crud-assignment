@@ -43,4 +43,16 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'users.destroy': {
+    methods: ["DELETE"]
+    pattern: '/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
 }

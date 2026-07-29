@@ -75,4 +75,20 @@ const data = await request.validateUsing(updateUserValidator)
       data: user,
     })
   }
+
+   async destroy({ params, response }: HttpContext) {
+    const user = await User.find(params.id)
+
+    if (!user) {
+      return response.notFound({
+        message: 'User not found',
+      })
+    }
+
+    await user.delete()
+
+    return response.ok({
+      message: 'User deleted successfully',
+    })
+  }
 }
