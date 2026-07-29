@@ -4,4 +4,8 @@ import UsersController from '#controllers/users_controller'
 router.get('/',() =>{
   return "Welcome"
 })
+
+
+// User Register
 router.post('/users', [UsersController, 'store'])
+router.put('/users/:id', [UsersController, 'update'])

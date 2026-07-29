@@ -19,4 +19,16 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'users.update': {
+    methods: ["PUT"]
+    pattern: '/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
 }

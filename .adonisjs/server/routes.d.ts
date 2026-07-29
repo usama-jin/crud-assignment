@@ -5,6 +5,7 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'users.store': { paramsTuple?: []; params?: {} }
+    'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
   }
@@ -12,6 +13,9 @@ export type ScannedRoutes = {
   }
   POST: {
     'users.store': { paramsTuple?: []; params?: {} }
+  }
+  PUT: {
+    'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

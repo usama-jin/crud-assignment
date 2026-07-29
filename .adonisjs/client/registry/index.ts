@@ -12,6 +12,12 @@ const routes = {
     tokens: [{"old":"/users","type":0,"val":"users","end":""}],
     types: placeholder as Registry['users.store']['types'],
   },
+  'users.update': {
+    methods: ["PUT"],
+    pattern: '/users/:id',
+    tokens: [{"old":"/users/:id","type":0,"val":"users","end":""},{"old":"/users/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['users.update']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }
