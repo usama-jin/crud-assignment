@@ -22,6 +22,17 @@ type PaginationMeta = {
   lastPage: number
 }
 
+const SORT_FIELDS: Record<string, string> = {
+  id: 'id',
+  firstName: 'first_name',
+  lastName: 'last_name',
+  email: 'email',
+  phone: 'phone',
+  city: 'city',
+  province: 'province',
+  country: 'country',
+}
+
 export default function Users() {
   const navigate = useNavigate()
 
@@ -34,7 +45,7 @@ export default function Users() {
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [sortBy, setSortBy] = useState('id')
-  const [order, setOrder] = useState('asc')
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc')
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -61,6 +72,24 @@ export default function Users() {
     fetchUsers()
   }, [page, search, sortBy, order])
 
+  const handleSort = (fieldKey: string) => {
+    const backendField = SORT_FIELDS[fieldKey] || fieldKey
+
+    if (sortBy === backendField) {
+      setOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortBy(backendField)
+      setOrder('asc')
+    }
+    setPage(1)
+  }
+
+  const renderSortIcon = (fieldKey: string) => {
+    const backendField = SORT_FIELDS[fieldKey] || fieldKey
+    if (sortBy !== backendField) return <span className="ml-1 text-gray-400">↕</span>
+    return order === 'asc' ? <span className="ml-1 font-bold">↑</span> : <span className="ml-1 font-bold">↓</span>
+  }
+
   const handleDelete = async (id: number) => {
     if (!window.confirm('Delete this user?')) return
 
@@ -81,7 +110,13 @@ export default function Users() {
     }
   }
 
-  if (loading) {
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPage(1)
+    setSearch(searchInput)
+  }
+
+  if (loading && !users.length) {
     return (
       <div className="flex min-h-screen items-center justify-center text-xl">
         Loading...
@@ -91,130 +126,116 @@ export default function Users() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-
       <div className="mx-auto max-w-7xl rounded-lg bg-white p-6 shadow">
 
         {/* Header */}
-
         <div className="mb-6 flex items-center justify-between">
-
           <div>
             <h1 className="text-3xl font-bold">Users</h1>
-            <p className="text-gray-500">
-              Total Users: {meta?.total ?? 0}
-            </p>
+            <p className="text-gray-500">Total Users: {meta?.total ?? 0}</p>
           </div>
 
           <div className="flex gap-2">
-
             <Link
               to="/users/create"
-              className="rounded bg-blue-600 px-4 py-2 text-white"
+              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
               Add User
             </Link>
 
             <button
               onClick={handleLogout}
-              className="rounded bg-red-600 px-4 py-2 text-white"
+              className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
             >
               Logout
             </button>
-
           </div>
-
         </div>
 
-
-        <div className="mb-6 flex flex-wrap gap-4">
-
+        {/* Search Bar */}
+        <form onSubmit={handleSearchSubmit} className="mb-6 flex gap-2">
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search users..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-80 rounded border p-2"
+            className="w-80 rounded border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
-          type='submit'
-            onClick={() => {
-              setPage(1)
-              setSearch(searchInput)
-            }}
+            type="submit"
             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Search
           </button>
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value)
-              setPage(1)
-            }}
-            className="rounded border p-2"
-          >
-            <option value="id">ID</option>
-            <option value="first_name">First Name</option>
-            <option value="last_name">Last Name</option>
-            <option value="email">Email</option>
-            <option value="city">City</option>
-            <option value="country">Country</option>
-          </select>
-
-          <select
-            value={order}
-            onChange={(e) => {
-              setOrder(e.target.value)
-              setPage(1)
-            }}
-            className="rounded border p-2"
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-
-        </div>
+        </form>
 
         {/* Table */}
-
         <div className="overflow-x-auto">
-
           <table className="min-w-full border border-gray-300">
-
-            <thead className="bg-gray-200">
-
+            <thead className="bg-gray-200 select-none">
               <tr>
-
-                <th className="border p-3">ID</th>
-                <th className="border p-3">First Name</th>
-                <th className="border p-3">Last Name</th>
-                <th className="border p-3">Email</th>
-                <th className="border p-3">Phone</th>
-                <th className="border p-3">City</th>
-                <th className="border p-3">Province</th>
-                <th className="border p-3">Country</th>
-                <th className="border p-3">Actions</th>
-
+                <th
+                  onClick={() => handleSort('id')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  ID {renderSortIcon('id')}
+                </th>
+                <th
+                  onClick={() => handleSort('firstName')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  First Name {renderSortIcon('firstName')}
+                </th>
+                <th
+                  onClick={() => handleSort('lastName')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  Last Name {renderSortIcon('lastName')}
+                </th>
+                <th
+                  onClick={() => handleSort('email')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  Email {renderSortIcon('email')}
+                </th>
+                <th
+                  onClick={() => handleSort('phone')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  Phone {renderSortIcon('phone')}
+                </th>
+                <th
+                  onClick={() => handleSort('city')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  City {renderSortIcon('city')}
+                </th>
+                <th
+                  onClick={() => handleSort('province')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  Province {renderSortIcon('province')}
+                </th>
+                <th
+                  onClick={() => handleSort('country')}
+                  className="cursor-pointer border p-3 text-left hover:bg-gray-300"
+                >
+                  Country {renderSortIcon('country')}
+                </th>
+                <th className="border p-3 text-left">Actions</th>
               </tr>
-
             </thead>
 
             <tbody>
-
               {users.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={9}
-                    className="p-6 text-center"
-                  >
+                  <td colSpan={9} className="p-6 text-center">
                     No users found.
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-
-                  <tr key={user.id}>
-
+                  <tr key={user.id} className="hover:bg-gray-50">
                     <td className="border p-3">{user.id}</td>
                     <td className="border p-3">{user.firstName}</td>
                     <td className="border p-3">{user.lastName}</td>
@@ -223,50 +244,36 @@ export default function Users() {
                     <td className="border p-3">{user.city}</td>
                     <td className="border p-3">{user.province}</td>
                     <td className="border p-3">{user.country}</td>
-
                     <td className="border p-3">
-
                       <div className="flex gap-2">
-
                         <Link
                           to={`/users/edit/${user.id}`}
-                          className="rounded bg-yellow-500 px-3 py-1 text-white"
+                          className="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600"
                         >
                           Edit
                         </Link>
-
                         <button
                           onClick={() => handleDelete(user.id)}
-                          className="rounded bg-red-600 px-3 py-1 text-white"
+                          className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
                         >
                           Delete
                         </button>
-
                       </div>
-
                     </td>
-
                   </tr>
-
                 ))
               )}
-
             </tbody>
-
           </table>
-
         </div>
 
         {/* Pagination */}
-
         <div className="mt-6 flex items-center justify-between">
-
           <div>
             Page {meta?.currentPage ?? 1} of {meta?.lastPage ?? 1}
           </div>
 
           <div className="flex gap-2">
-
             <button
               disabled={page === 1}
               onClick={() => setPage((prev) => prev - 1)}
@@ -282,13 +289,10 @@ export default function Users() {
             >
               Next
             </button>
-
           </div>
-
         </div>
 
       </div>
-
     </div>
   )
 }
