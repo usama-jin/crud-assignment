@@ -1,14 +1,18 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate,Navigate } from 'react-router-dom'
 import { login } from '../services/authService'
 
 export default function Login() {
   const navigate = useNavigate()
+const token = localStorage.getItem('token')
 
+  if (token) {
+    return <Navigate to="/users" replace />
+  }
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     try {
@@ -16,7 +20,7 @@ export default function Login() {
 
       localStorage.setItem('token', response.data.token)
 
-      navigate('/users')
+      navigate('/users',{replace:true})
     } catch (error) {
       alert('Invalid credentials')
     }

@@ -18,26 +18,26 @@ async store({ request, response }: HttpContext) {
   }
 
   // Full record update
-  async update({ params, request, response }: HttpContext) {
-    const user = await User.find(params.id)
+async update({ params, request, response }: HttpContext) {
+  const user = await User.find(params.id)
 
-    if (!user) {
-      return response.notFound({
-        message: 'User not found',
-      })
-    }
-
-const data = await request.validateUsing(updateUserValidator)
-
-    user.merge(data)
-
-    await user.save()
-
-    return response.ok({
-      message: 'User updated successfully',
-      data: user,
+  if (!user) {
+    return response.notFound({
+      message: 'User not found',
     })
   }
+
+  const payload = await request.validateUsing(updateUserValidator)
+
+  user.merge(payload)
+
+  await user.save()
+
+  return response.ok({
+    message: 'User updated successfully',
+    data: user,
+  })
+}
    async patch({ params, request, response }: HttpContext) {
     const user = await User.find(params.id)
 
