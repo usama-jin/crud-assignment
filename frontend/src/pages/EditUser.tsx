@@ -1,278 +1,404 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { getUser, updateUser } from '../services/userService'
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getUser, updateUser } from "../services/userService";
+import PageHeader from "./PageHeader";
 
+const nameRegex = /^[A-Za-z]+$/;
+const emailRegex = /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
+const phoneRegex = /^\+[1-9]\d{7,14}$/;
+const cityRegex = /^[A-Za-z\s.'-]+$/;
 export default function EditUser() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    province: '',
-    country: '',
-  })
-  const [originalForm, setOriginaForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    province: '',
-    country: '',
-  })
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    province: "",
+    country: "",
+  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [originalForm, setOriginalForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    province: "",
+    country: "",
+  });
+
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    province: "",
+    country: "",
+  });
 
   const fetchUser = async () => {
     try {
-      const response = await getUser(Number(id))
+      const response = await getUser(Number(id));
+      const userData = {
+        firstName: response.data.firstName || "",
+        lastName: response.data.lastName || "",
+        email: response.data.email || "",
+        phone: response.data.phone || "",
+        address: response.data.address || "",
+        city: response.data.city || "",
+        province: response.data.province || "",
+        country: response.data.country || "",
+      };
 
-      setForm({
-        firstName: response.data.firstName,
-        lastName: response.data.lastName,
-        email: response.data.email,
-        phone: response.data.phone,
-        address: response.data.address,
-        city: response.data.city,
-        province: response.data.province,
-        country: response.data.country,
-      })
-      setOriginaForm({
-        firstName: response.data.firstName,
-        lastName: response.data.lastName,
-        email: response.data.email,
-        phone: response.data.phone,
-        address: response.data.address,
-        city: response.data.city,
-        province: response.data.province,
-        country: response.data.country,
-      })
+      setForm(userData);
+      setOriginalForm(userData);
     } catch (error) {
-      console.error(error)
-      alert('Failed to load user')
+      console.error(error);
+      alert("Failed to load user");
     }
-  }
+  };
 
   useEffect(() => {
-    fetchUser()
-  }, [])
+    if (id) {
+      fetchUser();
+    }
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
 
     setForm((prev) => ({
       ...prev,
       [name]: value,
-    }))
+    }));
 
+    // Clear error for field as user types
     setErrors((prev) => ({
       ...prev,
-      [name]: '',
-    }))
-  }
+      [name]: "",
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
+    // 1. Check if form was modified
+    if (JSON.stringify(form) === JSON.stringify(originalForm)) {
+      alert("No changes detected.");
+      return;
+    }
+
+    // 2. Client-side Validation (Identical to CreateUser)
+    const newErrors = {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      province: "",
+      country: "",
+    };
+
+    // First Name
+    if (!form.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (!nameRegex.test(form.firstName)) {
+      newErrors.firstName = "Only letters are allowed";
+    } else if (form.firstName.length < 2) {
+      newErrors.firstName = "Minimum 2 characters";
+    } else if (form.firstName.length > 50) {
+      newErrors.firstName = "Maximum 50 characters";
+    }
+
+    // Last Name
+    if (!form.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (!nameRegex.test(form.lastName)) {
+      newErrors.lastName = "Only letters are allowed";
+    } else if (form.lastName.length < 2) {
+      newErrors.lastName = "Minimum 2 characters";
+    } else if (form.lastName.length > 50) {
+      newErrors.lastName = "Maximum 50 characters";
+    }
+
+    // Email
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(form.email.trim())) {
+      newErrors.email = "Invalid email address";
+    } else if (form.email.length > 100) {
+      newErrors.email = "Maximum 100 characters";
+    }
+
+    // Phone
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone is required";
+    } else if (!phoneRegex.test(form.phone.trim())) {
+      newErrors.phone = "Phone must start with + and contain 8–15 digits";
+    } else if (form.phone.length < 9) {
+      newErrors.phone = "Phone number is too short";
+    } else if (form.phone.length > 20) {
+      newErrors.phone = "Maximum 20 characters";
+    }
+
+    // Address
+    if (!form.address.trim()) {
+      newErrors.address = "Address is required";
+    } else if (form.address.length < 10) {
+      newErrors.address = "Minimum 10 characters";
+    } else if (form.address.length > 20) {
+      newErrors.address = "Maximum 20 characters";
+    }
+
+    // City
+    if (!form.city.trim()) {
+      newErrors.city = "City is required";
+    } else if (!cityRegex.test(form.city)) {
+      newErrors.city =
+        "Only letters, spaces, dots, hyphens, and apostrophes are allowed";
+    } else if (form.city.length < 2) {
+      newErrors.city = "Minimum 2 characters";
+    } else if (form.city.length > 50) {
+      newErrors.city = "Maximum 50 characters";
+    }
+
+    // Province
+    if (!form.province.trim()) {
+      newErrors.province = "Province is required";
+    } else if (!nameRegex.test(form.province)) {
+      newErrors.province = "Only letters are allowed";
+    } else if (form.province.length < 2) {
+      newErrors.province = "Minimum 2 characters";
+    } else if (form.province.length > 50) {
+      newErrors.province = "Maximum 50 characters";
+    }
+
+    // Country
+    if (!form.country.trim()) {
+      newErrors.country = "Country is required";
+    } else if (!nameRegex.test(form.country)) {
+      newErrors.country = "Only letters are allowed";
+    } else if (form.country.length < 2) {
+      newErrors.country = "Minimum 2 characters";
+    } else if (form.country.length > 50) {
+      newErrors.country = "Maximum 50 characters";
+    }
+
+    setErrors(newErrors);
+
+    const hasErrors = Object.values(newErrors).some((val) => val !== "");
+    if (hasErrors) return;
+
+    // 3. API Update
     try {
-      setErrors({})
-if (JSON.stringify(form) === JSON.stringify(originalForm)) {
-  alert('No changes detected.')
-  return
-}
-      await updateUser(Number(id), form)
+      await updateUser(Number(id), form);
 
-      alert('User updated successfully')
-      navigate('/users')
+      alert("User updated successfully");
+      navigate("/users");
     } catch (error: any) {
-  console.error(error)
-  console.log('Response:', error.response)
-  console.log('Data:', error.response?.data)
+      console.error(error);
 
-  const responseData = error.response?.data
+      const responseData = error.response?.data;
 
-  if (responseData?.errors) {
-    const validationErrors: Record<string, string> = {}
+      if (responseData?.errors) {
+        const validationErrors = { ...newErrors };
 
-    // Handle array format
-    if (Array.isArray(responseData.errors)) {
-      responseData.errors.forEach((err: any) => {
-        validationErrors[err.field] = err.message
-      })
+        // Handle array response format from backend
+        if (Array.isArray(responseData.errors)) {
+          responseData.errors.forEach((err: any) => {
+            if (err.field in validationErrors) {
+              validationErrors[err.field as keyof typeof validationErrors] =
+                err.message;
+            }
+          });
+        }
+        // Handle object response format from backend
+        else {
+          Object.keys(responseData.errors).forEach((key) => {
+            if (key in validationErrors) {
+              const errorVal = responseData.errors[key];
+              validationErrors[key as keyof typeof validationErrors] =
+                Array.isArray(errorVal) ? errorVal[0] : errorVal;
+            }
+          });
+        }
+
+        setErrors(validationErrors);
+        return;
+      }
+
+      alert(responseData?.message || "Failed to update user");
     }
-
-    // Handle object format
-    else {
-      Object.keys(responseData.errors).forEach((key) => {
-        validationErrors[key] = Array.isArray(responseData.errors[key])
-          ? responseData.errors[key][0]
-          : responseData.errors[key]
-      })
-    }
-
-    setErrors(validationErrors)
-    return
-  }
-
-  alert(responseData?.message || 'Failed to update user')
-}
-  }
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-2xl rounded-lg bg-white p-8 shadow"
-      >
-        <h1 className="mb-6 text-3xl font-bold">Edit User</h1>
+    <>
+      <PageHeader
+        title="Create User"
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Update User" }]}
+      />
+      <div className="page-body">
+        <div className="container-xl">
+          <div className="row justify-content-center">
+            <div className="col-lg-8">
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">Edit User</h3>
+                </div>
 
-        <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit}>
+                  <div className="card-body">
+                    <div className="row">
+                      {/* First Name */}
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label required">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
+                          placeholder="First Name"
+                          value={form.firstName}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">
+                          {errors.firstName}
+                        </div>
+                      </div>
 
-          <div>
-            <input
-              name="firstName"
-              value={form.firstName}
-              onChange={handleChange}
-              placeholder="First Name"
-              className="w-full rounded border p-2"
-            />
-            {errors.firstName && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.firstName}
-              </p>
-            )}
+                      {/* Last Name */}
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label required">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
+                          placeholder="Last Name"
+                          value={form.lastName}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">
+                          {errors.lastName}
+                        </div>
+                      </div>
+
+                      {/* Email */}
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label required">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                          placeholder="Email"
+                          value={form.email}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">{errors.email}</div>
+                      </div>
+
+                      {/* Phone */}
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label required">Phone</label>
+                        <input
+                          type="text"
+                          name="phone"
+                          className={`form-control ${errors.phone ? "is-invalid" : ""}`}
+                          placeholder="+923001234567"
+                          value={form.phone}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">{errors.phone}</div>
+                      </div>
+
+                      {/* Address */}
+                      <div className="col-12 mb-3">
+                        <label className="form-label required">Address</label>
+                        <input
+                          type="text"
+                          name="address"
+                          className={`form-control ${errors.address ? "is-invalid" : ""}`}
+                          placeholder="Address"
+                          value={form.address}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">{errors.address}</div>
+                      </div>
+
+                      {/* City */}
+                      <div className="col-md-4 mb-3">
+                        <label className="form-label required">City</label>
+                        <input
+                          type="text"
+                          name="city"
+                          className={`form-control ${errors.city ? "is-invalid" : ""}`}
+                          placeholder="City"
+                          value={form.city}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">{errors.city}</div>
+                      </div>
+
+                      {/* Province */}
+                      <div className="col-md-4 mb-3">
+                        <label className="form-label required">Province</label>
+                        <input
+                          type="text"
+                          name="province"
+                          className={`form-control ${errors.province ? "is-invalid" : ""}`}
+                          placeholder="Province"
+                          value={form.province}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">
+                          {errors.province}
+                        </div>
+                      </div>
+
+                      {/* Country */}
+                      <div className="col-md-4 mb-3">
+                        <label className="form-label required">Country</label>
+                        <input
+                          type="text"
+                          name="country"
+                          className={`form-control ${errors.country ? "is-invalid" : ""}`}
+                          placeholder="Country"
+                          value={form.country}
+                          onChange={handleChange}
+                        />
+                        <div className="invalid-feedback">{errors.country}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="card-footer d-flex justify-content-end gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => navigate("/users")}
+                    >
+                      Cancel
+                    </button>
+
+                    <button type="submit" className="btn btn-primary">
+                      Update User
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-
-          <div>
-            <input
-              name="lastName"
-              value={form.lastName}
-              onChange={handleChange}
-              placeholder="Last Name"
-              className="w-full rounded border p-2"
-            />
-            {errors.lastName && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.lastName}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <input
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Email"
-              className="w-full rounded border p-2"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <input
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="Phone (+92...)"
-              className="w-full rounded border p-2"
-            />
-            {errors.phone && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.phone}
-              </p>
-            )}
-          </div>
-
-          <div className="col-span-2">
-            <input
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="Address"
-              className="w-full rounded border p-2"
-            />
-            {errors.address && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.address}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <input
-              name="city"
-              value={form.city}
-              onChange={handleChange}
-              placeholder="City"
-              className="w-full rounded border p-2"
-            />
-            {errors.city && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.city}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <input
-              name="province"
-              value={form.province}
-              onChange={handleChange}
-              placeholder="Province"
-              className="w-full rounded border p-2"
-            />
-            {errors.province && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.province}
-              </p>
-            )}
-          </div>
-
-          <div className="col-span-2">
-            <input
-              name="country"
-              value={form.country}
-              onChange={handleChange}
-              placeholder="Country"
-              className="w-full rounded border p-2"
-            />
-            {errors.country && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.country}
-              </p>
-            )}
-          </div>
-
         </div>
-
-        <div className="mt-6 flex gap-3">
-          <button
-            type="submit"
-            className="rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
-          >
-            Update
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate('/users')}
-            className="rounded bg-gray-600 px-5 py-2 text-white hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  )
+      </div>
+    </>
+  );
 }
