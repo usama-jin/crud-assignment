@@ -250,8 +250,8 @@ export default function EditUser() {
   return (
     <>
       <PageHeader
-        title="Update User"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Update User" }]}
+        title="Update"
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Update-User" }]}
       />
       <div className="page-body">
         <div className="container-xl">

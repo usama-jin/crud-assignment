@@ -1,24 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
   title: string;
   message: string;
   icon?: React.ReactNode;
-  iconBgColor?: string; // e.g., 'bg-success-lt', 'bg-warning-lt', 'bg-danger-lt'
+  iconBgColor?: string;
   confirmText?: string;
   cancelText?: string;
+  confirmBgColor: String;
   onConfirm: () => void;
   onCancel?: () => void;
 }
-
 export default function ConfirmationModal({
   isOpen,
   title,
   message,
   icon,
-  iconBgColor = "bg-primary-lt",
+  iconBgColor,
   confirmText = "OK",
+  confirmBgColor,
   cancelText,
   onConfirm,
   onCancel,
@@ -65,7 +66,7 @@ export default function ConfirmationModal({
                 <div className="col">
                   <button
                     type="button"
-                    className="btn btn-primary w-100"
+                    className={`btn btn-primary w-100 ${confirmBgColor}`}
                     onClick={onConfirm}
                   >
                     {confirmText}

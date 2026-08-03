@@ -4,6 +4,7 @@ import { getUsers, deleteUser } from "../services/userService";
 import { logout } from "../services/authService";
 import { CountUp } from "countup.js";
 import PageHeader from "./PageHeader";
+import ConfirmationModal from "../components/models/ConfirmationModal";
 type User = {
   id: number;
   firstName: string;
@@ -42,7 +43,9 @@ export default function Users() {
 
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
-
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [sortBy, setSortBy] = useState("id");
@@ -108,24 +111,25 @@ export default function Users() {
     );
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Delete this user?")) return;
+  const handleConfirmDelete = async () => {
+    if (!selectedUser) return;
 
     try {
-      await deleteUser(id);
+      await deleteUser(selectedUser.id);
+
+      setShowConfirmationModal(false);
+      setSelectedUser(null);
+
+      // Refresh users
       fetchUsers();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } finally {
-      localStorage.removeItem("token");
-      navigate("/");
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/", { replace: true });
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -144,7 +148,7 @@ export default function Users() {
 
   return (
     <>
-      <PageHeader title="Users" breadcrumbs={[{ label: "Users" }]} />
+      <PageHeader title="Dash Board" breadcrumbs={[{ label: "Home" }]} />
       <div className="min-h-screen bg-gray-100 p-8">
         <div className="mx-auto max-w-7xl rounded-lg bg-white p-6 shadow">
           {/* Header */}
@@ -163,10 +167,9 @@ export default function Users() {
               >
                 Add User
               </Link>
-
               <button
-                onClick={handleLogout}
-                className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                className="btn btn-outline-danger"
+                onClick={() => setShowLogoutModal(true)}
               >
                 Logout
               </button>
@@ -274,8 +277,11 @@ export default function Users() {
                             Edit
                           </Link>
                           <button
-                            onClick={() => handleDelete(user.id)}
-                            className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
+                            className="btn btn-danger"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowConfirmationModal(true);
+                            }}
                           >
                             Delete
                           </button>
@@ -340,6 +346,72 @@ export default function Users() {
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        confirmBgColor="bg-red"
+        isOpen={showConfirmationModal}
+        title="Delete User"
+        icon={
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="icon icon-tabler icon-tabler-trash text-danger"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            stroke="currentColor"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M4 7l16 0" />
+            <path d="M10 11l0 6" />
+            <path d="M14 11l0 6" />
+            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+          </svg>
+        }
+        message={`Are you sure you want to delete ${selectedUser?.firstName}?`}
+        iconBgColor="bg-danger-lt"
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setShowConfirmationModal(false);
+          setSelectedUser(null);
+        }}
+      />
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmText="Logout"
+        confirmBgColor="btn-danger"
+        cancelText="Cancel"
+        iconBgColor="bg-danger-lt"
+        icon={
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="icon"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M13 12v.01" />
+            <path d="M3 21h18" />
+            <path d="M5 21v-14a2 2 0 0 1 2-2h5m5 5v11" />
+            <path d="M16 3l5 5l-5 5" />
+            <path d="M21 8h-9" />
+          </svg>
+        }
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { register } from "../services/authService";
 
 export default function SignUp() {
@@ -9,6 +9,12 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    return <Navigate to="/users" replace />;
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

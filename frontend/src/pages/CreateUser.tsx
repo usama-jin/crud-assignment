@@ -166,8 +166,8 @@ export default function CreateUser() {
   return (
     <>
       <PageHeader
-        title="Create User"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Create User" }]}
+        title="Create"
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Create-User" }]}
       />
       <div className="page-body">
         <div className="container-xl">
