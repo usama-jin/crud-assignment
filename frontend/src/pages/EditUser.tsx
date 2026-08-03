@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { replace, useNavigate, useParams } from "react-router-dom";
 import { getUser, updateUser } from "../services/userService";
 import PageHeader from "./PageHeader";
 import NoChangesModal from "./../components/models/NoChangesModal";
@@ -101,13 +101,11 @@ export default function EditUser() {
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 1. Check if form was modified
     if (JSON.stringify(form) === JSON.stringify(originalForm)) {
       setShowNoChangesModal(true);
       return;
     }
 
-    // 2. Client-side Validation
     const newErrors = {
       firstName: "",
       lastName: "",
@@ -435,7 +433,7 @@ export default function EditUser() {
         message="User details have been successfully saved."
         onConfirm={() => {
           setShowSuccessModal(false);
-          navigate("/users");
+          navigate("/users", { replace: true });
         }}
       />
 

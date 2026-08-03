@@ -89,7 +89,7 @@ export default function Users() {
     });
   }, [page]);
   const handleSort = (fieldKey: string) => {
-    const backendField = SORT_FIELDS[fieldKey] || fieldKey;
+    const backendField = SORT_FIELDS[fieldKey];
 
     if (sortBy === backendField) {
       setOrder((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -101,7 +101,7 @@ export default function Users() {
   };
 
   const renderSortIcon = (fieldKey: string) => {
-    const backendField = SORT_FIELDS[fieldKey] || fieldKey;
+    const backendField = SORT_FIELDS[fieldKey];
     if (sortBy !== backendField)
       return <span className="ml-1 text-gray-400">↕</span>;
     return order === "asc" ? (
@@ -130,9 +130,10 @@ export default function Users() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/", { replace: true });
+    logout();
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.ChangeEvent) => {
     e.preventDefault();
     setPage(1);
     setSearch(searchInput);
@@ -154,10 +155,9 @@ export default function Users() {
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Users</h1>
-              <h2 className="text-gray-500">
+              <h1 className="text-gray-500">
                 Total Users: <span ref={countRef}>0</span>
-              </h2>
+              </h1>
             </div>
 
             <div className="flex gap-2">
@@ -272,7 +272,7 @@ export default function Users() {
                         <div className="flex gap-2">
                           <Link
                             to={`/users/edit/${user.id}`}
-                            className="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600"
+                            className="btn btn-warning"
                           >
                             Edit
                           </Link>

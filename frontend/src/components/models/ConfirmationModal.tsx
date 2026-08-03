@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 interface ConfirmationModalProps {
   isOpen: boolean;
   title: string;
@@ -8,7 +6,7 @@ interface ConfirmationModalProps {
   iconBgColor?: string;
   confirmText?: string;
   cancelText?: string;
-  confirmBgColor: String;
+  confirmBgColor?: String;
   onConfirm: () => void;
   onCancel?: () => void;
 }
