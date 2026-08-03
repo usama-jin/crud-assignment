@@ -18,9 +18,10 @@ export const createUserValidator = vine.create(
       .maxLength(20)
       .regex(/^\+[1-9]\d{7,14}$/),
 
-    address: vine.string()
+    address: vine
+      .string()
       .minLength(10)
-      .maxLength(20)
+      .maxLength(100)
       .regex(/^\+[1-9]\d{7,14}$/),
 
     city: vine.string().alpha().minLength(2).maxLength(50),

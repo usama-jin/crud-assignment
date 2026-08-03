@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getUser, updateUser } from "../services/userService";
 import PageHeader from "./PageHeader";
+import NoChangesModal from "./../components/models/NoChangesModal";
+import SuccessModal from "./../components/models/SuccessModal";
+import ErrorModal from "./../components/models/ErrorModal";
 
 const nameRegex = /^[A-Za-z]+$/;
 const emailRegex = /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
 const phoneRegex = /^\+[1-9]\d{7,14}$/;
 const cityRegex = /^[A-Za-z\s.'-]+$/;
+
 export default function EditUser() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -44,6 +48,12 @@ export default function EditUser() {
     country: "",
   });
 
+  // Modal Visibility & Content States
+  const [showNoChangesModal, setShowNoChangesModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const fetchUser = async () => {
     try {
       const response = await getUser(Number(id));
@@ -62,7 +72,8 @@ export default function EditUser() {
       setOriginalForm(userData);
     } catch (error) {
       console.error(error);
-      alert("Failed to load user");
+      setErrorMessage("Failed to load user information.");
+      setShowErrorModal(true);
     }
   };
 
@@ -92,11 +103,11 @@ export default function EditUser() {
 
     // 1. Check if form was modified
     if (JSON.stringify(form) === JSON.stringify(originalForm)) {
-      alert("No changes detected.");
+      setShowNoChangesModal(true);
       return;
     }
 
-    // 2. Client-side Validation (Identical to CreateUser)
+    // 2. Client-side Validation
     const newErrors = {
       firstName: "",
       lastName: "",
@@ -155,8 +166,8 @@ export default function EditUser() {
       newErrors.address = "Address is required";
     } else if (form.address.length < 10) {
       newErrors.address = "Minimum 10 characters";
-    } else if (form.address.length > 20) {
-      newErrors.address = "Maximum 20 characters";
+    } else if (form.address.length > 100) {
+      newErrors.address = "Maximum 100 characters";
     }
 
     // City
@@ -201,9 +212,7 @@ export default function EditUser() {
     // 3. API Update
     try {
       await updateUser(Number(id), form);
-
-      alert("User updated successfully");
-      navigate("/users");
+      setShowSuccessModal(true);
     } catch (error: any) {
       console.error(error);
 
@@ -212,7 +221,6 @@ export default function EditUser() {
       if (responseData?.errors) {
         const validationErrors = { ...newErrors };
 
-        // Handle array response format from backend
         if (Array.isArray(responseData.errors)) {
           responseData.errors.forEach((err: any) => {
             if (err.field in validationErrors) {
@@ -220,9 +228,7 @@ export default function EditUser() {
                 err.message;
             }
           });
-        }
-        // Handle object response format from backend
-        else {
+        } else {
           Object.keys(responseData.errors).forEach((key) => {
             if (key in validationErrors) {
               const errorVal = responseData.errors[key];
@@ -236,14 +242,15 @@ export default function EditUser() {
         return;
       }
 
-      alert(responseData?.message || "Failed to update user");
+      setErrorMessage(responseData?.message || "Failed to update user");
+      setShowErrorModal(true);
     }
   };
 
   return (
     <>
       <PageHeader
-        title="Create User"
+        title="Update User"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Update User" }]}
       />
       <div className="page-body">
@@ -266,7 +273,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="firstName"
-                          className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.firstName ? "is-invalid" : ""
+                          }`}
                           placeholder="First Name"
                           value={form.firstName}
                           onChange={handleChange}
@@ -282,7 +291,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="lastName"
-                          className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.lastName ? "is-invalid" : ""
+                          }`}
                           placeholder="Last Name"
                           value={form.lastName}
                           onChange={handleChange}
@@ -298,7 +309,9 @@ export default function EditUser() {
                         <input
                           type="email"
                           name="email"
-                          className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.email ? "is-invalid" : ""
+                          }`}
                           placeholder="Email"
                           value={form.email}
                           onChange={handleChange}
@@ -312,7 +325,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="phone"
-                          className={`form-control ${errors.phone ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.phone ? "is-invalid" : ""
+                          }`}
                           placeholder="+923001234567"
                           value={form.phone}
                           onChange={handleChange}
@@ -326,7 +341,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="address"
-                          className={`form-control ${errors.address ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.address ? "is-invalid" : ""
+                          }`}
                           placeholder="Address"
                           value={form.address}
                           onChange={handleChange}
@@ -340,7 +357,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="city"
-                          className={`form-control ${errors.city ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.city ? "is-invalid" : ""
+                          }`}
                           placeholder="City"
                           value={form.city}
                           onChange={handleChange}
@@ -354,7 +373,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="province"
-                          className={`form-control ${errors.province ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.province ? "is-invalid" : ""
+                          }`}
                           placeholder="Province"
                           value={form.province}
                           onChange={handleChange}
@@ -370,7 +391,9 @@ export default function EditUser() {
                         <input
                           type="text"
                           name="country"
-                          className={`form-control ${errors.country ? "is-invalid" : ""}`}
+                          className={`form-control ${
+                            errors.country ? "is-invalid" : ""
+                          }`}
                           placeholder="Country"
                           value={form.country}
                           onChange={handleChange}
@@ -399,6 +422,28 @@ export default function EditUser() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <NoChangesModal
+        isOpen={showNoChangesModal}
+        onClose={() => setShowNoChangesModal(false)}
+      />
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title="User Updated!"
+        message="User details have been successfully saved."
+        onConfirm={() => {
+          setShowSuccessModal(false);
+          navigate("/users");
+        }}
+      />
+
+      <ErrorModal
+        isOpen={showErrorModal}
+        message={errorMessage}
+        onClose={() => setShowErrorModal(false)}
+      />
     </>
   );
 }
