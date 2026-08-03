@@ -29,63 +29,89 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleSignUp}
-        className="w-96 rounded-lg bg-white p-6 shadow-lg"
-      >
-        <h1 className="mb-6 text-center text-2xl font-bold">Create Account</h1>
+    <div className="page page-center">
+      <div className="container container-tight py-4">
+        <div className="text-center mb-4">
+          <h1 className="navbar-brand navbar-brand-autodark">
+            CRUD Assignment
+          </h1>
+        </div>
 
-        <input
-          className="mb-4 w-full rounded border p-2"
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-
-        <input
-          className="mb-4 w-full rounded border p-2"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          className="mb-4 w-full rounded border p-2"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <input
-          className="mb-6 w-full rounded border p-2"
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-
-        <button
-          type="submit"
-          className="w-full rounded bg-green-600 py-2 text-white hover:bg-green-700"
+        <form
+          className="card card-md"
+          onSubmit={handleSignUp}
+          autoComplete="off"
         >
-          Sign Up
-        </button>
-        <h1>Already have an Account?</h1>
-        <button
-          onClick={() => navigate("/")}
-          className="w-full rounded bg-blue-600  py-2 text-white hover:bg-green-700"
-        >
-          Login
-        </button>
-      </form>
+          <div className="card-body">
+            <h2 className="card-title text-center mb-4">Create an Account</h2>
+
+            <div className="mb-3">
+              <label className="form-label">Full Name</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Email Address</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label">Confirm Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-footer">
+              <button type="submit" className="btn btn-primary w-100">
+                Create Account
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div className="text-center text-secondary mt-3">
+          Already have an account?{" "}
+          <button
+            type="button"
+            className="btn btn-link p-0 align-baseline"
+            onClick={() => navigate("/")}
+          >
+            Sign in
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
