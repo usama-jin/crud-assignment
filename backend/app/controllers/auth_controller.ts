@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import Admin from '#models/admin'
-import { createAdminValidator,  } from '#validators/admin'
+import { createAdminValidator } from '#validators/admin'
 import { loginValidator } from '#validators/login'
 export default class AuthController {
   async register({ request, response }: HttpContext) {
@@ -50,16 +50,13 @@ export default class AuthController {
       admin,
     })
   }
-async logout({ auth, response }: HttpContext) {
-  const admin = await auth.use('api').authenticate()
+  async logout({ auth, response }: HttpContext) {
+    const admin = await auth.use('api').authenticate()
 
-  await Admin.accessTokens.delete(
-    admin,
-    admin.currentAccessToken.identifier
-  )
+    await Admin.accessTokens.delete(admin, admin.currentAccessToken.identifier)
 
-  return response.ok({
-    message: 'Logged out successfully',
-  })
-}
+    return response.ok({
+      message: 'Logged out successfully',
+    })
+  }
 }

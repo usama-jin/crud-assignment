@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { replace, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getUser, updateUser } from "../services/userService";
 import PageHeader from "./PageHeader";
 import NoChangesModal from "./../components/models/NoChangesModal";
 import SuccessModal from "./../components/models/SuccessModal";
 import ErrorModal from "./../components/models/ErrorModal";
+import axios from "axios";
 
 const nameRegex = /^[A-Za-z]+$/;
 const emailRegex = /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
@@ -54,33 +55,33 @@ export default function EditUser() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const fetchUser = async () => {
-    try {
-      const response = await getUser(Number(id));
-      const userData = {
-        firstName: response.data.firstName || "",
-        lastName: response.data.lastName || "",
-        email: response.data.email || "",
-        phone: response.data.phone || "",
-        address: response.data.address || "",
-        city: response.data.city || "",
-        province: response.data.province || "",
-        country: response.data.country || "",
-      };
-
-      setForm(userData);
-      setOriginalForm(userData);
-    } catch (error) {
-      console.error(error);
-      setErrorMessage("Failed to load user information.");
-      setShowErrorModal(true);
-    }
-  };
-
   useEffect(() => {
-    if (id) {
-      fetchUser();
-    }
+    if (!id) return;
+
+    const loadUser = async () => {
+      try {
+        const response = await getUser(Number(id));
+
+        const userData = {
+          firstName: response.data.firstName ?? "",
+          lastName: response.data.lastName ?? "",
+          email: response.data.email ?? "",
+          phone: response.data.phone ?? "",
+          address: response.data.address ?? "",
+          city: response.data.city ?? "",
+          province: response.data.province ?? "",
+          country: response.data.country ?? "",
+        };
+
+        setForm(userData);
+        setOriginalForm(userData);
+      } catch {
+        setErrorMessage("Failed to load user information.");
+        setShowErrorModal(true);
+      }
+    };
+
+    void loadUser();
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +99,7 @@ export default function EditUser() {
     }));
   };
 
-  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit: React.ComponentProps<"form">["onSubmit"] = async (e) => {
     e.preventDefault();
 
     if (JSON.stringify(form) === JSON.stringify(originalForm)) {
@@ -211,13 +212,29 @@ export default function EditUser() {
     try {
       await updateUser(Number(id), form);
       setShowSuccessModal(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error)) {
+        console.error(error);
+        setErrorMessage("An unexpected error occurred.");
+        setShowErrorModal(true);
+        return;
+      }
+
       console.error(error);
 
       const responseData = error.response?.data;
 
       if (responseData?.errors) {
-        const validationErrors = { ...newErrors };
+        const validationErrors = {
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          address: "",
+          city: "",
+          province: "",
+          country: "",
+        };
 
         if (Array.isArray(responseData.errors)) {
           responseData.errors.forEach((err: any) => {
@@ -229,9 +246,10 @@ export default function EditUser() {
         } else {
           Object.keys(responseData.errors).forEach((key) => {
             if (key in validationErrors) {
-              const errorVal = responseData.errors[key];
+              const value = responseData.errors[key];
+
               validationErrors[key as keyof typeof validationErrors] =
-                Array.isArray(errorVal) ? errorVal[0] : errorVal;
+                Array.isArray(value) ? value[0] : value;
             }
           });
         }
@@ -244,7 +262,6 @@ export default function EditUser() {
       setShowErrorModal(true);
     }
   };
-
   return (
     <>
       <PageHeader
